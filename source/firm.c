@@ -23,7 +23,7 @@ u32 emuOffset = 0,
     mpuOffset = 0,
     emuCodeOffset = 0;
     console = 1;
-u8  mode = 1,
+u8  mode = 1;
 u16 pressed;
 
 //Load firm into FCRAM
