@@ -13,9 +13,17 @@
 
 firmHeader *firmLocation = (firmHeader *)0x24000000;
 firmSectionHeader *section;
-u32 firmSize = 0;
-u8  mode = 1,
+
+u32 emuOffset = 0,
+    emuHeader = 0,
+    emuRead = 0,
+    emuWrite = 0,
+    sdmmcOffset = 0, 
+    firmSize = 0,
+    mpuOffset = 0,
+    emuCodeOffset = 0;
     console = 1;
+u8  mode = 1,
 u16 pressed;
 
 //Load firm into FCRAM
@@ -59,24 +67,24 @@ u8 loadEmu(void){
         emuCodeOffset = 0;
 
     //Read emunand code from SD
-    const char path[] = "/rei/emunand/emunand.bin";
+	const char path[] = "/rei/emunand/emunand.bin";
+    getEmuCode(firmLocation, &emuCodeOffset, firmSize);
     u32 size = fileSize(path);
     if (!size) return 1;
-    getEmuCode(firmLocation, &emuCodeOffset, firmSize);
     fileRead((u8*)emuCodeOffset, path, size);
-
+    
     //Find and patch emunand related offsets
-    u32 *pos_sdmmc = memsearch((u32*)emuCodeOffset, "SDMC", size, 4);
-    u32 *pos_offset = memsearch((u32*)emuCodeOffset, "NAND", size, 4);
-    u32 *pos_header = memsearch((u32*)emuCodeOffset, "NCSD", size, 4);
-    getSDMMC(firmLocation, &sdmmcOffset, firmSize);
+	u32 *pos_sdmmc = memsearch(emuCodeOffset, "SDMC", size, 4);
+    u32 *pos_offset = memsearch(emuCodeOffset, "NAND", size, 4);
+    u32 *pos_header = memsearch(emuCodeOffset, "NCSD", size, 4);
+	getSDMMC(firmLocation, &sdmmcOffset, firmSize);
     getEmunandSect(&emuOffset, &emuHeader);
     getEmuRW(firmLocation, firmSize, &emuRead, &emuWrite);
-    getMPU(firmLocation, &mpuOffset, firmSize);
-    *pos_sdmmc = sdmmcOffset;
-    *pos_offset = emuOffset;
-    *pos_header = emuHeader;
-
+    getMPU(firmLocation, firmSize, &mpuOffset);
+	*pos_sdmmc = sdmmcOffset;
+	*pos_offset = emuOffset;
+	*pos_header = emuHeader;
+	
     //Add emunand hooks
     if(!console) nandRedir[5] = 0xA4;
     memcpy((u8*)emuRead, nandRedir, sizeof(nandRedir));

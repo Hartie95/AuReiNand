@@ -39,6 +39,9 @@ void getSignatures(void *pos, u32 size, u32 *off, u32 *off2){
 
     *off = (u32)memsearch(pos, pattern, size, 4);
     *off2 = (u32)memsearch(pos, pattern2, size, 5);
+//Where thread code is stored in firm
+u32 threadCode(void){
+    return KERNEL9 + (0x08006070 - K9_ADDR);
 }
 
 void getReboot(void *pos, u32 size, u32 *off, u32 *off2){
