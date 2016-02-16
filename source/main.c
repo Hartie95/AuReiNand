@@ -8,11 +8,11 @@
 
 #include "fs.h"
 #include "firm.h"
-#include "draw.h"
+//#include "draw.h"
 
 u8 main(){
     mountSD();
-    loadSplash();
+    //loadSplash();
     if (loadFirm()) return 1;
     if (patchFirm()) return 1;
     launchFirm();
